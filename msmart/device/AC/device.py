@@ -152,13 +152,14 @@ class AirConditioner(Device):
         self._supports_display_control = True
         self._supports_filter_reminder = True
         self._supports_purifier = True
-        self._supports_humidity = False
+        self._supports_humidity = True
         self._supports_target_humidity = False
         self._min_target_temperature = 16
         self._max_target_temperature = 30
 
         self._indoor_temperature = None
         self._indoor_humidity = None
+        self._defrost = 0
         self._outdoor_temperature = None
 
         self._request_energy_usage = False
@@ -319,6 +320,7 @@ class AirConditioner(Device):
                 "Humidity response payload from device %s: %s", self.id, res)
 
             self._indoor_humidity = res.humidity
+            self._defrost = res.defrost
 
         else:
             _LOGGER.debug("Ignored unknown response from device %s: %s",
@@ -395,7 +397,7 @@ class AirConditioner(Device):
         # We've seen devices that claim no capability but return energy data
         self._request_energy_usage |= res.energy_stats
 
-        self._supports_humidity = res.humidity
+        # self._supports_humidity = res.humidity
         self._supports_target_humidity = res.target_humidity
 
         # Add supported properties based on capabilities
@@ -983,6 +985,10 @@ class AirConditioner(Device):
         return self._indoor_humidity
 
     @property
+    def defrost(self) -> Optional[int]:
+        return self._defrost
+
+    @property
     def supports_target_humidity(self) -> bool:
         return self._supports_target_humidity
 
@@ -1045,6 +1051,7 @@ class AirConditioner(Device):
             "outdoor_temperature": self.outdoor_temperature,
             "target_humidity": self.target_humidity,
             "indoor_humidity": self.indoor_humidity,
+            "defrost": self.defrost,
             "eco": self.eco,
             "turbo": self.turbo,
             "freeze_protection": self.freeze_protection,
