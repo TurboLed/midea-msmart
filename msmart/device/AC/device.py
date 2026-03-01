@@ -320,6 +320,7 @@ class AirConditioner(Device):
                 "Humidity response payload from device %s: %s", self.id, res)
 
             self._indoor_humidity = res.humidity
+            self._outdoor_fan_speed = res.outdoor_fan_speed
             self._defrost = res.defrost
 
         else:
@@ -985,6 +986,10 @@ class AirConditioner(Device):
         return self._indoor_humidity
 
     @property
+    def outdoor_fan_speed(self) -> Optional[int]:
+        return self._outdoor_fan_speed
+
+    @property
     def defrost(self) -> Optional[int]:
         return self._defrost
 
@@ -1051,6 +1056,7 @@ class AirConditioner(Device):
             "outdoor_temperature": self.outdoor_temperature,
             "target_humidity": self.target_humidity,
             "indoor_humidity": self.indoor_humidity,
+            "outdoor_fan_speed": self.outdoor_fan_speed,
             "defrost": self.defrost,
             "eco": self.eco,
             "turbo": self.turbo,

@@ -1131,6 +1131,7 @@ class HumidityResponse(Response):
         super().__init__(payload)
 
         self.humidity = None
+        self.outdoor_fan_speed = 0
         self.defrost = 0
 
         self._parse(payload)
@@ -1140,5 +1141,6 @@ class HumidityResponse(Response):
         # and may contain other interesting data
 
         self.humidity = payload[4] if payload[4] != 0 else None
-        self.defrost = payload[8]
+        self.outdoor_fan_speed = payload[8]
+        self.defrost = payload[10]
 
