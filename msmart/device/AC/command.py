@@ -1132,6 +1132,7 @@ class HumidityResponse(Response):
 
         self.humidity = None
         self.outdoor_fan_speed = 0
+        self.exv_angle = 0
         self.defrost = 0
 
         self._parse(payload)
@@ -1142,5 +1143,6 @@ class HumidityResponse(Response):
 
         self.humidity = payload[4] if payload[4] != 0 else None
         self.outdoor_fan_speed = payload[8]
+        self.exv_angle = payload[9]
         self.defrost = payload[10]
 

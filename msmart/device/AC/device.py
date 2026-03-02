@@ -159,6 +159,7 @@ class AirConditioner(Device):
 
         self._indoor_temperature = None
         self._indoor_humidity = None
+        self._exv_angle = 0
         self._defrost = 0
         self._outdoor_temperature = None
 
@@ -321,6 +322,7 @@ class AirConditioner(Device):
 
             self._indoor_humidity = res.humidity
             self._outdoor_fan_speed = res.outdoor_fan_speed
+            self._exv_angle = res.exv_angle
             self._defrost = res.defrost
 
         else:
@@ -990,6 +992,10 @@ class AirConditioner(Device):
         return self._outdoor_fan_speed
 
     @property
+    def exv_angle(self) -> Optional[int]:
+        return self._exv_angle
+
+    @property
     def defrost(self) -> Optional[int]:
         return self._defrost
 
@@ -1057,6 +1063,7 @@ class AirConditioner(Device):
             "target_humidity": self.target_humidity,
             "indoor_humidity": self.indoor_humidity,
             "outdoor_fan_speed": self.outdoor_fan_speed,
+            "exv_angle": self.exv_angle,
             "defrost": self.defrost,
             "eco": self.eco,
             "turbo": self.turbo,
