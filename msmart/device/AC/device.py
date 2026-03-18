@@ -12,7 +12,7 @@ from msmart.utils import CapabilityManager, MideaIntEnum, deprecated
 from .command import (CapabilitiesResponse, Command, EnergyUsageResponse,
                       GetCapabilitiesCommand, GetEnergyUsageCommand,
                       GetGroupCommand, GetPropertiesCommand, GetStateCommand,
-                      Group1Response, Group2Response, Group5Response, InvalidResponseException,
+                      Group1Response, Group2Response, Group5Response, Group7Response, InvalidResponseException,
                       PropertiesResponse, PropertyId, Response,
                       SetPropertiesCommand, SetStateCommand, StateResponse,
                       ToggleDisplayCommand)
@@ -224,6 +224,7 @@ class AirConditioner(Device):
         self._T4 = None
         self._TP = None
         self._indoor_fan_speed = None
+        self._outdoor_unit_power = None
 
         self._total_energy_usage = {
             AirConditioner.EnergyDataFormat.BCD: None,
@@ -260,6 +261,7 @@ class AirConditioner(Device):
         self._request_group2_data = False
         self._request_energy_usage = False
         self._request_group5_data = False
+        self._request_group7_data = False
 
         # Default to assuming device can't handle any properties
         self._supported_properties = set()
@@ -406,6 +408,12 @@ class AirConditioner(Device):
             self._indoor_humidity = res.humidity
             self._outdoor_fan_speed = res.outdoor_fan_speed
             self._defrost_active = res.defrost
+
+        elif isinstance(res, Group7Response):
+            _LOGGER.debug(
+                "Group 7 response payload from device %s: %s", self.id, res)
+
+            self._outdoor_unit_power = res.outdoor_unit_power
 
         else:
             _LOGGER.debug("Ignored unknown response from device %s: %s",
@@ -686,6 +694,10 @@ class AirConditioner(Device):
         # Request Group 5 data if humidity is supported or otherwise enabled
         if self.supports_humidity or self._request_group5_data:
             commands.append(GetGroupCommand(5))
+
+        # Request Group 7 data
+        if self._request_group7_data:
+            commands.append(GetGroupCommand(7))
 
         # Update supported properties
         if len(self._supported_properties):
@@ -1226,6 +1238,10 @@ class AirConditioner(Device):
     def indoor_fan_speed(self) -> Optional[int]:
         return self._indoor_fan_speed
 
+    @property
+    def outdoor_unit_power(self) -> Optional[float]:
+        return self._outdoor_unit_power
+
     def to_dict(self) -> dict:
         return {**super().to_dict(), **{
             "power": self.power_state,
@@ -1267,7 +1283,8 @@ class AirConditioner(Device):
             "T3": self.T3,
             "T4": self.T4,
             "TP": self.TP,
-            "indoor_fan_speed": self.indoor_fan_speed
+            "indoor_fan_speed": self.indoor_fan_speed,
+            "outdoor_unit_power": self.outdoor_unit_power
         }}
 
     def capabilities_dict(self) -> dict:
