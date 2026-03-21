@@ -244,7 +244,7 @@ class GetGroupCommand(Command):
         payload[1] = 0x21
         payload[2] = 0x01
         payload[3] = 0x40 | self._group
-
+        
         return super().tobytes(payload)
 
 
@@ -500,6 +500,8 @@ class Response():
                     response_class = Group7Response
                 elif group == 11:
                     response_class = Group11Response
+                else:
+                    response_class = UnknownGroupResponse
 
             # Validate the payload CRC
             # ...except for properties which certain devices send invalid CRCs
@@ -1232,3 +1234,11 @@ class Group11Response(Response):
     def _parse(self, payload: memoryview) -> None:
 
         self.louver_angle = payload[9]
+
+class UnknownGroupResponse(Response):
+    """Unknown response."""
+
+    def __init__(self, payload: memoryview) -> None:
+        super().__init__(payload)
+
+        self.group = payload[3] & 0xf

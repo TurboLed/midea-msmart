@@ -12,7 +12,7 @@ from msmart.utils import CapabilityManager, MideaIntEnum, deprecated
 from .command import (CapabilitiesResponse, Command, EnergyUsageResponse,
                       GetCapabilitiesCommand, GetEnergyUsageCommand,
                       GetGroupCommand, GetPropertiesCommand, GetStateCommand,
-                      Group1Response, Group2Response, Group5Response, Group7Response, Group11Response, InvalidResponseException,
+                      Group1Response, Group2Response, Group5Response, Group7Response, Group11Response, UnknownGroupResponse, InvalidResponseException,
                       PropertiesResponse, PropertyId, Response,
                       SetPropertiesCommand, SetStateCommand, StateResponse,
                       ToggleDisplayCommand)
@@ -423,6 +423,10 @@ class AirConditioner(Device):
 
             self._louver_angle = res.louver_angle
 
+        elif isinstance(res, UnknownGroupResponse):
+            _LOGGER.debug(
+                "Group %s response payload from device %s: %s", str(res.group), self.id, res)
+            
         else:
             _LOGGER.debug("Ignored unknown response from device %s: %s",
                           self.id, res)
@@ -695,22 +699,38 @@ class AirConditioner(Device):
         if self._request_group2_data:
             commands.append(GetGroupCommand(2))
 
+        commands.append(GetGroupCommand(3))
+
         # Fetch power stats if supported
         if self._request_energy_usage:
             commands.append(GetEnergyUsageCommand())
 
-        # Request Group 5 data if humidity is supported or otherwise enabled
+        commands.append(GetGroupCommand(4))
+
+            # Request Group 5 data if humidity is supported or otherwise enabled
         if self.supports_humidity or self._request_group5_data:
             commands.append(GetGroupCommand(5))
+
+        commands.append(GetGroupCommand(6))
 
         # Request Group 7 data
         if self.supports_humidity or self._request_group7_data:
             commands.append(GetGroupCommand(7))
 
+        commands.append(GetGroupCommand(8))
+        commands.append(GetGroupCommand(9))
+        commands.append(GetGroupCommand(10))
+            
+            
         # Request Group 11 data
         if self.supports_humidity or self._request_group11_data:
             commands.append(GetGroupCommand(11))
 
+        commands.append(GetGroupCommand(12))
+        commands.append(GetGroupCommand(13))
+        commands.append(GetGroupCommand(14))
+        commands.append(GetGroupCommand(15))
+            
         # Update supported properties
         if len(self._supported_properties):
             commands.append(GetPropertiesCommand(self._supported_properties))
